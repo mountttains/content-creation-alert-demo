@@ -14,8 +14,8 @@
 
 ## 提交材料
 
-- [产品说明（5页）](docs/product-description.pdf)
+- [产品说明](docs/product-description.md)
 - [操作演示（约2分30秒，中文字幕）](docs/demo-video.mp4)
-- [AI使用记录](docs/AI-usage.pdf)
+- [AI使用记录](docs/AI-usage.md)
 
 规则是本地条件计算，未接真实报表、后台巡检、站内／企业微信通知或自动投放操作。所有原产品身份信息仅在发布副本中匿名化，不改变原工作目录。
