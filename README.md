@@ -1,0 +1,17 @@
+# 创作平台 · 投放提醒与告警规则 Demo
+
+用于展示 AI 内容创作产品的投放反馈环节，已匿名化原产品名称、Logo 和产品链接。所有账户、素材与表现均为本地示例，不代表真实投放。
+
+入口：`index.html`，或 `v3.0/media-management/reminder-rules-highfi.html`。
+
+首次体验将右上“预览身份”切换为“一级管理员”，可进入媒介管理配置规则、试运行及查看命中。成员可在自己范围内复用规则。无需真实登录，浏览器需启用 JavaScript 与 LocalStorage。
+
+本地启动：`python3 -m http.server 8766` 后访问 `http://127.0.0.1:8766/`。
+
+## 提交材料
+
+- [产品说明（5页）](docs/product-description.pdf)
+- [操作演示（约2分30秒，中文字幕）](docs/demo-video.mp4)
+- [AI使用记录](docs/AI-usage.pdf)
+
+规则是本地条件计算，未接真实报表、后台巡检、站内／企业微信通知或自动投放操作。所有原产品身份信息仅在发布副本中匿名化，不改变原工作目录。
