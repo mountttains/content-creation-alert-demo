@@ -1,0 +1,8 @@
+import{c as r,s as o}from"./flowDiagram-HODETNUW-BjGlcZld.js";import{_ as m}from"./GenerateV2-IeKCoVSQ.js";import"./index-oddxqlpg.js";import"./chunk-5VM5RSS4-CWrRJPAC.js";import"./chunk-XXDRQBXY-DmXljLiZ.js";import"./chunk-POPQ4Y6H-BBoHudf8.js";import"./chunk-F27PBJKO-CHz6qL7s.js";import"./channel-De8H-xiS.js";import"./useModelCatalog-B0IM83K2.js";import"./SubtitleEraseRegionEditor-CA6oFeLT.js";import"./LibraryTagSelect-BUs4zczq.js";import"./index-DwN6T0ua.js";import"./index-MpGi2zBZ.js";import"./index-BimUeNvz.js";import"./ThumbnailImage.vue_vue_type_script_setup_true_lang-Do_jjyRd.js";import"./index-DoFbz81q.js";import"./index-rh5KYXC1.js";import"./index-Bu0z6IBm.js";import"./index-By9cA9N9.js";import"./index-DjP61au1.js";import"./DropdownMenuTrigger.vue_vue_type_script_setup_true_lang-Dc0tab6O.js";import"./projectHistory-jZAY0SbR.js";import"./index-BTpY9ASI.js";import"./BriefEditor.vue_vue_type_script_setup_true_lang-DZdtvzXm.js";import"./index-BuUZhfGn.js";import"./index-BhCBnESl.js";import"./PromptSaveButton-BvrUzWiz.js";import"./assetHandoffKeys-aYuruvgj.js";import"./x-B5CjJ-cg.js";import"./MaterialVideoPreview-Ct9NY8xz.js";import"./promptReferenceLabels-CqmB6YqT.js";import"./index-JIkwgIq_.js";import"./index-Dg0KXnT0.js";import"./index-B49_tFz_.js";import"./index-Dqz4KFJE.js";import"./index-CvpH7K3Y.js";import"./creationCollectionAccess-DTiNvzSy.js";import"./index-DEmpmmgN.js";import"./index-CCN6z4Zj.js";var i=m(t=>`${o(t)}
+  .swimlane.cluster rect {
+    stroke: ${t.clusterBorder} !important;
+  }
+  [data-look="neo"].cluster rect {
+    filter: none;
+  }
+`,"getStyles"),p=i,Q=r({defaultLayout:"swimlane",styles:p});export{Q as diagram};

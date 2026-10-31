@@ -1,0 +1,36 @@
+/* Color-only override using the ad-data module palette. */
+:root {
+  --zy-color-accent: var(--zy-color-primary);
+  --zy-color-accent-hover: var(--zy-color-primary-hover);
+  --zy-color-accent-soft: var(--zy-color-primary-soft);
+}
+.rail-credits[class] { color: var(--zy-color-primary); }
+.rail-credit-symbol[class] { background: var(--zy-color-primary-soft); }
+.rail-credits:hover .rail-credit-symbol[class] { background: #dbe7ff; }
+.rail-button.rail-new-chat {
+  color: var(--zy-color-primary);
+  background-color: var(--zy-color-primary-soft);
+  border-color: #dbe7ff;
+}
+.rail-button.active {
+  color: var(--zy-color-primary);
+  background-color: var(--zy-color-primary-soft);
+}
+.avatar.rail-profile {
+  background: linear-gradient(135deg, #4080ff, #165dff) !important;
+}
+
+/* Canvas node accents are assigned inline by the workflow model. */
+.workflow-node.kind-image-generator,
+.palette-icon[style*="#7c3aed"],
+[style*="--node-accent: #7c3aed"],
+[style*="--node-accent:#7c3aed"] {
+  --node-accent: #165dff !important;
+}
+
+/* Minimap uses SVG fill rather than the node CSS variable. */
+.overview-node[fill="#7c3aed"],
+.vue-flow__minimap [fill="#7c3aed"],
+.vue-flow__minimap [style*="#7c3aed"] {
+  fill: #165dff !important;
+}

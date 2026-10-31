@@ -1,0 +1,168 @@
+.enterprise-operate-sidebar[data-v-f2b20dcf] {
+  --primary-6: 22, 93, 255;
+  --color-primary-light-1: #e8f3ff;
+  position: fixed;
+  z-index: 20;
+  inset: 0 auto 0 0;
+  width: var(--enterprise-operate-sidebar-width, 244px);
+  height: 100dvh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0 8px;
+  background: var(--color-bg-2);
+  border-right: 1px solid var(--color-border-2);
+  color: var(--color-text-1);
+  letter-spacing: 0;
+}
+.operate-brand[data-v-f2b20dcf] {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 64px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--color-border-2);
+}
+.brand-logo[data-v-f2b20dcf] {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+.operate-brand-copy[data-v-f2b20dcf] {
+  flex: 1;
+  min-width: 0;
+}
+.operate-brand-copy strong[data-v-f2b20dcf] {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+}
+.operate-brand-copy span[data-v-f2b20dcf] {
+  display: block;
+  margin-top: 3px;
+  color: var(--color-text-3);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.sidebar-toggle[data-v-f2b20dcf] {
+  display: grid;
+  place-items: center;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  color: var(--color-text-2);
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+.sidebar-toggle[data-v-f2b20dcf]:hover {
+  background: var(--color-fill-2);
+  color: rgb(var(--primary-6));
+}
+.sidebar-toggle[data-v-f2b20dcf]:focus-visible {
+  outline: 2px solid rgb(var(--primary-6));
+  outline-offset: 2px;
+}
+.sidebar-toggle[data-v-f2b20dcf] svg {
+  width: 18px;
+  height: 18px;
+}
+.operate-menu[data-v-f2b20dcf] {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 0 12px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-fill-3) transparent;
+}
+.operate-menu[data-v-f2b20dcf] .arco-menu {
+  width: 100%;
+  background: transparent;
+}
+.operate-menu[data-v-f2b20dcf] .arco-menu-inner {
+  padding: 0;
+}
+.operate-menu[data-v-f2b20dcf] .arco-menu-group-title {
+  padding: 10px 12px 6px;
+  line-height: 20px;
+  font-size: 12px;
+  color: var(--color-text-3);
+  cursor: default;
+}
+.operate-menu[data-v-f2b20dcf] .arco-menu-item {
+  margin-bottom: 4px;
+  padding: 0 12px;
+  border-radius: 4px;
+  color: var(--color-text-2);
+  background: transparent;
+  font-size: 14px;
+  line-height: 40px;
+  font-weight: 400;
+  transition: background-color 0.2s, color 0.2s;
+}
+.operate-menu[data-v-f2b20dcf] .arco-menu-item:hover {
+  background: var(--color-fill-2);
+}
+.operate-menu[data-v-f2b20dcf] .arco-menu-item.arco-menu-selected {
+  color: rgb(var(--primary-6));
+  background: var(--color-primary-light-1);
+  font-weight: 500;
+}
+.operate-menu[data-v-f2b20dcf] .arco-menu-item.arco-menu-selected::before {
+  position: absolute;
+  inset: 12px auto 12px 0;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: rgb(var(--primary-6));
+  content: '';
+}
+.operate-menu[data-v-f2b20dcf] .arco-menu-item:focus-visible {
+  outline: 2px solid rgb(var(--primary-6));
+  outline-offset: -2px;
+}
+.operate-menu[data-v-f2b20dcf] .arco-menu-icon {
+  margin-right: 12px;
+  font-size: 18px;
+}
+.operate-menu[data-v-f2b20dcf] .arco-menu-item.arco-menu-selected .arco-icon {
+  color: rgb(var(--primary-6));
+}
+.is-collapsed .operate-brand[data-v-f2b20dcf] {
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 0;
+}
+.is-collapsed .operate-brand-copy[data-v-f2b20dcf] {
+  display: none;
+}
+.is-collapsed .operate-menu[data-v-f2b20dcf] {
+  padding-top: 12px;
+}
+.is-collapsed .operate-menu[data-v-f2b20dcf] .arco-menu-item {
+  padding: 0;
+  text-align: center;
+}
+.is-collapsed .operate-menu[data-v-f2b20dcf] .arco-menu-icon {
+  margin-right: 0;
+}
+.is-collapsed .operate-menu[data-v-f2b20dcf] .arco-menu-group-title {
+  display: none;
+}
+.is-collapsed .operate-menu[data-v-f2b20dcf] .arco-menu-group + .arco-menu-group {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-border-2);
+}
+@media (max-width: 980px) {
+.enterprise-operate-sidebar[data-v-f2b20dcf] {
+    display: none;
+}
+}

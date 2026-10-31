@@ -1,0 +1,34 @@
+
+.enterprise-real-portraits[data-v-1009ddbb] { min-height: 100vh; background: #f5f7fb; color: #1d2939;
+}
+.real-portrait-content[data-v-1009ddbb] { min-height: 100vh; margin-left: var(--enterprise-operate-sidebar-width, 244px);
+}
+.real-portrait-topbar[data-v-1009ddbb] { position: sticky; top: 0; z-index: 10; height: 64px; display: flex; align-items: center; gap: 10px; padding: 0 28px; border-bottom: 1px solid #e5e7eb; background: rgb(255 255 255 / .96);
+}
+.breadcrumbs[data-v-1009ddbb] { display: flex; align-items: center; gap: 8px; min-width: 0; color: #86909c; font-size: 13px;
+}.breadcrumbs[data-v-1009ddbb] svg { font-size: 12px;
+}.breadcrumbs b[data-v-1009ddbb] { color: #1d2129;
+}.topbar-status[data-v-1009ddbb] { margin-left: auto; color: #3156c6; font-size: 12px; font-weight: 800;
+}
+.real-portrait-page[data-v-1009ddbb] { max-width: 1500px; margin: 0 auto; padding: 36px 42px 56px;
+}.page-heading[data-v-1009ddbb] { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 24px;
+}.overline[data-v-1009ddbb] { margin: 0 0 8px; color: #3156c6; font-size: 11px; font-weight: 900; letter-spacing: .08em;
+}.page-heading h1[data-v-1009ddbb] { margin: 0; color: #172033; font-size: 28px;
+}.page-heading p[data-v-1009ddbb]:last-child { max-width: 720px; margin: 10px 0 0; color: #667085; line-height: 1.6;
+}.refresh-button[data-v-1009ddbb] { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 13px; border: 1px solid #d8e0ec; border-radius: 8px; background: #fff; color: #52627a; font-weight: 700; cursor: pointer;
+}.refresh-button[data-v-1009ddbb]:disabled { opacity: .55; cursor: wait;
+}.loading-state[data-v-1009ddbb] { min-height: 240px; display: grid; place-items: center; border: 1px dashed #d8e0ec; border-radius: 14px; background: #fff; color: #7b8798;
+}
+@media (max-width: 980px) {
+.real-portrait-content[data-v-1009ddbb] { margin-left: 0;
+}.real-portrait-page[data-v-1009ddbb] { padding: 28px 18px 40px;
+}.real-portrait-topbar[data-v-1009ddbb] { padding: 0 18px;
+}
+}
+@media (max-width: 640px) {
+.page-heading[data-v-1009ddbb] { flex-direction: column;
+}.topbar-status[data-v-1009ddbb] { display: none;
+}.breadcrumbs span[data-v-1009ddbb], .breadcrumbs[data-v-1009ddbb] svg { display: none;
+}.breadcrumbs b[data-v-1009ddbb] { overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+}

@@ -1,0 +1,28 @@
+
+.creative-seat-capacity[data-v-cfe77862] { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 13px; color: #64748b;
+}
+.creative-seat-capacity > button[data-v-cfe77862] { border: 1px solid #dbe2ea; border-radius: 6px; padding: 5px 10px; background: white; color: inherit; cursor: pointer;
+}
+.creative-seat-capacity > button[data-v-cfe77862]:disabled { opacity: .5; cursor: default;
+}
+
+.low-credit-settings[data-v-84448533] { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 18px; padding: 18px 20px; border: 1px solid var(--color-border-2); border-radius: 10px; background: var(--color-fill-1);
+}
+.low-credit-settings-copy[data-v-84448533] { min-width: 0;
+}
+.low-credit-settings-copy strong[data-v-84448533] { display: block; margin-bottom: 6px; color: var(--color-text-1);
+}
+.low-credit-settings-copy p[data-v-84448533] { margin: 0 0 6px; color: var(--color-text-2);
+}
+.low-credit-settings-copy small[data-v-84448533] { display: block; color: var(--color-text-3);
+}
+.low-credit-settings-controls[data-v-84448533] { display: flex; align-items: center; gap: 10px; flex: 0 0 auto;
+}
+.low-credit-settings-controls[data-v-84448533] .arco-input-wrapper { width: 150px;
+}
+@media (max-width: 760px) {
+.low-credit-settings[data-v-84448533] { align-items: stretch; flex-direction: column;
+}
+.low-credit-settings-controls[data-v-84448533] { flex-wrap: wrap;
+}
+}

@@ -1,0 +1,22 @@
+{
+  "name": "创作平台 workspace",
+  "short_name": "创作平台",
+  "icons": [
+    {
+      "src": "/logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#2563EB",
+  "background_color": "#FFFFFF",
+  "display": "standalone",
+  "start_url": "/",
+  "description": "创作平台，一站式AI创意生产平台"
+}

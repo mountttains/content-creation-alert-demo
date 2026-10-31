@@ -1,0 +1,1 @@
+function i(t,n="0"){if(t==null||t==="")return n;const r=Number(t);return Number.isFinite(r)?Math.ceil(r).toLocaleString("zh-CN"):n}function e(t){return Number.isFinite(t)?String(Math.ceil(Math.max(0,t))):"—"}export{e as a,i as f};
