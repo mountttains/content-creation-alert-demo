@@ -115,19 +115,21 @@ var metric = (key, label, unit, description, index) => ({
 });
 var MATERIAL_DEMO_METRICS = [
   metric("spend", "\u6D88\u8017", "platform_currency", "\u6240\u9009\u793A\u4F8B\u7D20\u6750\u5728\u8FD1 7 \u5929\u7684\u6A21\u62DF\u6D88\u8017\uFF0C\u5355\u4F4D\uFF1A\u5143\u3002", 0),
-  metric("impressions", "\u5C55\u793A\u6B21\u6570", "count", "\u6240\u9009\u793A\u4F8B\u7D20\u6750\u7684\u6A21\u62DF\u5C55\u793A\u603B\u6B21\u6570\u3002", 1),
-  metric("clicks", "\u70B9\u51FB\u6B21\u6570", "count", "\u6240\u9009\u793A\u4F8B\u7D20\u6750\u7684\u6A21\u62DF\u70B9\u51FB\u603B\u6B21\u6570\u3002", 2),
-  metric("conversions", "\u8F6C\u5316\u6B21\u6570", "count", "\u6240\u9009\u793A\u4F8B\u7D20\u6750\u7684\u6A21\u62DF\u8F6C\u5316\u603B\u6B21\u6570\u3002", 3),
-  metric("click_through_rate", "\u70B9\u51FB\u7387", "percent", "\u70B9\u51FB\u6B21\u6570 \xF7 \u5C55\u793A\u6B21\u6570 \xD7 100%\u3002", 4),
-  metric("cost_per_conversion", "\u8F6C\u5316\u6210\u672C", "platform_currency_per_event", "\u6D88\u8017 \xF7 \u8F6C\u5316\u6B21\u6570\uFF0C\u5355\u4F4D\uFF1A\u5143\u3002", 5)
+  metric("impressions", "\u5C55\u793A", "count", "\u6240\u9009\u793A\u4F8B\u7D20\u6750\u7684\u6A21\u62DF\u5C55\u793A\u603B\u6B21\u6570\u3002", 1),
+  metric("clicks", "\u70B9\u51FB", "count", "\u6240\u9009\u793A\u4F8B\u7D20\u6750\u7684\u6A21\u62DF\u70B9\u51FB\u603B\u6B21\u6570\u3002", 2),
+  metric("conversions", "\u8F6C\u5316", "count", "\u6240\u9009\u793A\u4F8B\u7D20\u6750\u7684\u6A21\u62DF\u8F6C\u5316\u603B\u6B21\u6570\u3002", 3),
+  metric("cost_per_mille", "\u5E73\u53F0 CPM", "platform_currency_per_thousand_impressions", "\u6BCF\u5343\u6B21\u5C55\u793A\u5E73\u5747\u6D88\u8017\uFF0C\u5355\u4F4D\uFF1A\u5143\u3002", 4),
+  metric("cost_per_click", "\u5E73\u53F0 CPC", "platform_currency_per_event", "\u6BCF\u6B21\u70B9\u51FB\u5E73\u5747\u6D88\u8017\uFF0C\u5355\u4F4D\uFF1A\u5143\u3002", 5),
+  metric("click_through_rate", "CTR", "percent", "\u70B9\u51FB\u6B21\u6570 \xF7 \u5C55\u793A\u6B21\u6570 \xD7 100%\u3002", 6),
+  metric("cost_per_conversion", "\u8F6C\u5316\u6210\u672C", "platform_currency_per_event", "\u6D88\u8017 \xF7 \u8F6C\u5316\u6B21\u6570\uFF0C\u5355\u4F4D\uFF1A\u5143\u3002", 7)
 ];
 var MATERIAL_DEMO_CATALOG = {
   contract_version: "material-performance.demo.v1",
   catalog_version: "demo.v1",
-  groups: [{ group_key: "demo", label: "\u6A21\u62DF\u6307\u6807", sort_order: 0, total_count: 6, enabled_count: 6, pending_count: 0, unavailable_count: 0 }],
+  groups: [{ group_key: "demo", label: "\u6A21\u62DF\u6307\u6807", sort_order: 0, total_count: 8, enabled_count: 8, pending_count: 0, unavailable_count: 0 }],
   items: MATERIAL_DEMO_METRICS,
   defaults: {
-    kpi_metric_keys: ["spend", "impressions", "clicks", "conversions"],
+    kpi_metric_keys: ["clicks", "impressions", "cost_per_mille", "cost_per_click", "click_through_rate", "spend", "conversions", "cost_per_conversion"],
     trend_metric_keys: ["spend", "clicks", "conversions"],
     table_metric_keys: MATERIAL_DEMO_METRICS.map((item) => item.metric_key)
   }
@@ -153,6 +155,11 @@ var PLATFORM_EXAMPLES = {
   }
 };
 var THEMES = ["blue", "green", "violet", "orange", "rose", "teal"];
+var PLATFORM_MATERIAL_TYPES = {
+  marketing: ["\u89C6\u9891", "\u89C6\u9891", "\u6807\u9898", "\u672A\u8BC6\u522B\u7D20\u6750\u7C7B\u578B", "\u7AD6\u7248\u89C6\u9891", "\u89C6\u9891"],
+  local: ["\u89C6\u9891", "\u89C6\u9891", "\u56FE\u7247", "\u89C6\u9891", "\u56FE\u7247", "\u89C6\u9891"],
+  qianchuan: ["\u77ED\u89C6\u9891", "\u76F4\u64AD\u95F4\u753B\u9762", "\u5546\u54C1\u56FE\u7247", "\u77ED\u89C6\u9891", "\u5546\u54C1\u56FE\u7247", "\u76F4\u64AD\u95F4\u753B\u9762"]
+};
 function createMaterialDemo(platform, now = /* @__PURE__ */ new Date()) {
   const example = PLATFORM_EXAMPLES[platform];
   const range = dateRangeForPreset("7d", now);
@@ -170,7 +177,7 @@ function createMaterialDemo(platform, now = /* @__PURE__ */ new Date()) {
     return {
       id: `DEMO-${example.prefix}-${String(index + 1).padStart(3, "0")}`,
       name,
-      type: index === 2 || index === 4 ? "\u56FE\u7247" : "\u89C6\u9891",
+      type: PLATFORM_MATERIAL_TYPES[platform]?.[index] || "\u89C6\u9891",
       theme: THEMES[index],
       caption: example.captions[index],
       daily,

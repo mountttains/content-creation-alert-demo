@@ -1,15 +1,15 @@
-import RuleManager from "./rule-manager.mjs?v=rules34";
+import RuleManager from "./rule-manager.mjs?v=rules53";
 import {
   readState,
   watchState,
+  setPreviewActor,
   actorProfile,
   effectiveFeatures,
-  setPreviewActor,
   platforms,
   platformObjects,
   scope,
-} from "./employee-state.mjs?v=dataset4";
-import { createUI } from "./employee-ui.mjs?v=rules18";
+} from "./employee-state.mjs?v=dataset5";
+import { createUI } from "./employee-ui.mjs?v=rules19";
 import { volumeFacts } from "../../demo/assets/alert-model.mjs?v=4";
 import {
   readRules,
@@ -24,7 +24,7 @@ import {
   kindLabels,
   liveMaterial,
   SAMPLE_TIME,
-} from "./reminder-rules.mjs?v=rules34";
+} from "./reminder-rules.mjs?v=rules43";
 
 export function createAlertWorkspace({
   h,
@@ -52,6 +52,9 @@ export function createAlertWorkspace({
       : ["spend", "revenue", "cpa", "cpm", "cpc", "attributionCpa", "deepCpa", "payGmv", "recent", "previous"].includes(field)
         ? money(n)
         : `${Number(n.toFixed(2))}${metrics[field]?.[1] || ""}`;
+  const reminderTypeText = rule => rule.kind === "custom"
+    ? (rule.customKindName || "自定义")
+    : (kindLabels[rule.kind] || "未分类");
   return {
     name: "ReminderDashboard",
     setup() {
@@ -60,6 +63,10 @@ export function createAlertWorkspace({
         employee = ref(readState()),
         store = ref(readRules()),
         selected = ref(null),
+        notificationChannel = ref(route.query.preview === "wecom" ? "wecom" : ""),
+        notificationSelectedKey = ref(""),
+        notificationFilter = ref("all"),
+        notificationReadKeys = ref([]),
         query = ref(""),
         kind = ref("all"),
         handleStatus = ref("all"),
@@ -75,15 +82,27 @@ export function createAlertWorkspace({
         afterRevenue = ref(""),
         afterPeriod = ref(""),
         reviewError = ref("");
+      const roleStorageKey = "creation:alert-preview-role-selected";
+      if (employee.value.actor === "new-user" && !sessionStorage.getItem(roleStorageKey)) {
+        setPreviewActor("admin1");
+        employee.value = readState();
+      }
+      const roleValue = computed(() => ({
+        "new-user": "unassigned",
+        "preview-platform": "platform",
+        "preview-admin1": "admin1",
+        "preview-admin2": "admin2",
+        "preview-member": "member",
+      })[employee.value.actor] || "unassigned");
+      const changeRoleView = event => {
+        sessionStorage.setItem(roleStorageKey, "1");
+        setPreviewActor(event.target.value);
+      };
       const demo = computed(
         () =>
           !effectiveFeatures(employee.value).includes("material_performance"),
       );
-      const viewer = computed(() =>
-        demo.value
-          ? { ...employee.value, actor: "preview-admin1" }
-          : employee.value,
-      );
+      const viewer = computed(() => employee.value);
       const current = computed(() => actorProfile(viewer.value));
       const advertiserOptions = computed(() => scope(viewer.value, viewer.value.actor, new Set(), "material_performance").map(account => ({
         id: account.id,
@@ -91,7 +110,7 @@ export function createAlertWorkspace({
         code: account.advertiser_id,
         platform: account.platform,
       })));
-      const tab = computed(() => route.query.tab === "rules" ? "rules" : "records");
+      const tab = computed(() => "records");
       const events = computed(() =>
         boardEvents(viewer.value, store.value).filter((e) =>
           (platformId.value === "all" || e.material.platform === platformId.value) &&
@@ -106,13 +125,30 @@ export function createAlertWorkspace({
           `${m.name} ${m.id} ${m.account}`.includes(query.value.trim()),
         ),
       );
-      const handled = row => [...(store.value.observations[row.key] || [])].reverse().find(log => log.status)?.status === "handled";
+      const latestStatus = row => [...(store.value.observations[row.key] || [])].reverse().find(log => log.status)?.status || "open";
+      const handled = row => latestStatus(row) === "handled";
+      const canEscalateToSuperior = computed(() => ["admin2", "member"].includes(current.value.role));
+      const escalatedForViewer = row => canEscalateToSuperior.value && row.escalated && !handled(row);
+      const eventStatus = row => handled(row)
+        ? { label: "本次事件已处理", tone: "good" }
+        : escalatedForViewer(row)
+          ? { label: "已升级给上级", tone: "warning" }
+          : { label: "待处理", tone: "risk" };
       const filteredEvents = computed(() => events.value.filter(e =>
         (kind.value === "all" || e.rule.kind === kind.value) &&
-        (handleStatus.value === "all" || (handleStatus.value === "handled") === handled(e)),
+        (handleStatus.value === "all" || (handleStatus.value === "handled" ? handled(e) : handleStatus.value === "escalated" ? escalatedForViewer(e) : !handled(e) && !escalatedForViewer(e))),
       ));
       const pageCount = computed(() => Math.max(1, Math.ceil(filteredEvents.value.length / pageSize.value)));
       const pagedEvents = computed(() => filteredEvents.value.slice((page.value - 1) * pageSize.value, page.value * pageSize.value));
+      const notificationEvents = computed(() => {
+        const visible = filteredEvents.value.length ? filteredEvents.value : boardEvents(viewer.value, store.value);
+        return visible.slice(0, 6);
+      });
+      const notificationIsUnread = event => notificationEvents.value.slice(0, 2).some(item => item.key === event.key) && !notificationReadKeys.value.includes(event.key);
+      const visibleNotificationEvents = computed(() => notificationFilter.value === "unread"
+        ? notificationEvents.value.filter(notificationIsUnread)
+        : notificationEvents.value);
+      const notificationRow = computed(() => visibleNotificationEvents.value.find(event => event.key === notificationSelectedKey.value) || visibleNotificationEvents.value[0] || null);
       let stopEmployee, stopRules, focusBefore;
       const closeAdvertiserOnOutside = event => document.querySelectorAll('.rd-scope-picker[open]').forEach(node => { if (!node.contains(event.target)) node.removeAttribute('open'); });
       onMounted(() => {
@@ -143,14 +179,9 @@ export function createAlertWorkspace({
       );
       watch(() => [query.value, kind.value, handleStatus.value, platformId.value, advertiserId.value, pageSize.value], () => page.value = 1);
       watch(() => filteredEvents.value.length, () => page.value = Math.min(page.value, pageCount.value));
-      const setTab = (value) =>
-        router.replace({
-          path: "/ad-data",
-          query: {
-            view: "alerts",
-            tab: value === "records" ? undefined : value,
-          },
-        });
+      watch(() => current.value.role, () => {
+        if (!canEscalateToSuperior.value && handleStatus.value === "escalated") handleStatus.value = "all";
+      });
       function chooseAdvertiser(id, event) {
         advertiserId.value = id;
         event.currentTarget.closest("details")?.removeAttribute("open");
@@ -210,11 +241,26 @@ export function createAlertWorkspace({
         afterPeriod.value = "";
         reviewError.value = "";
       }
+      function openNotificationPreview(row = null) {
+        notificationChannel.value = "wecom";
+        notificationSelectedKey.value = row?.key || notificationSelectedKey.value || notificationEvents.value[0]?.key || "";
+      }
+      function closeNotificationPreview() {
+        notificationChannel.value = "";
+      }
+      function markNotificationRead(event, pointerEvent) {
+        pointerEvent?.stopPropagation();
+        if (!notificationReadKeys.value.includes(event.key)) notificationReadKeys.value = [...notificationReadKeys.value, event.key];
+      }
+      function selectNotification(event) {
+        notificationSelectedKey.value = event.key;
+      }
       function close() {
         selected.value = null;
         setTimeout(() => focusBefore?.isConnected && focusBefore.focus(), 0);
       }
       function openMaterial(material) {
+        notificationChannel.value = "";
         close();
         router.push({ path: "/ad-data", query: { view: "performance", material: material.id, ...(material.platform !== "ocean_engine" ? { platform: material.platform } : {}) } });
       }
@@ -226,6 +272,7 @@ export function createAlertWorkspace({
           by: employee.value.actor,
           at: new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" }),
           status,
+          note: status === "handled" ? "本次告警事件已处理；规则继续监控，素材再次命中时会生成新事件。" : "重新打开本次告警事件。",
         }];
         writeRules(next);
         store.value = next;
@@ -352,9 +399,15 @@ export function createAlertWorkspace({
               el("h2", "", m.name),
               el("p", "em-muted", `${m.id} · ${m.account} · ${platforms[m.platform] || m.platform}`),
               el("div", "rd-detail-status", [
-                el("span", `rd-type-badge ${rule.kind || "risk"}`, kindLabels[rule.kind] || "未分类"),
-                handled(row) ? tag("已处理", "good") : tag("待处理", "risk"),
+                el("span", `rd-type-badge ${rule.kind || "risk"}`, reminderTypeText(rule)),
+                tag(eventStatus(row).label, eventStatus(row).tone),
               ]),
+              escalatedForViewer(row) ? el("p", "rd-escalation-note", `该事件已超过 ${row.escalationHours} 小时未处理，已反馈至你的上级管理员；告警规则仍继续监控。`) : null,
+              el("p", "rd-event-lifecycle-note", handled(row)
+                ? "本次事件已关闭；规则未关闭，后续再次命中会建立新事件。"
+                : canEscalateToSuperior.value
+                  ? `本次告警已持续 ${row.ageHours} 小时。超过 ${row.escalationHours} 小时仍未处理时，会反馈至你的上级管理员。`
+                  : `本次告警已持续 ${row.ageHours} 小时。当前已是一级管理员处理层级，不再向上升级；告警规则仍继续监控。`),
               el("div", "rd-detail-actions", [
                 button("查看素材表现", () => openMaterial(m), "text"),
                 rule.id && !demo.value ? button(handled(row) ? "重新打开" : "标记已处理", () => toggleHandled(row), handled(row) ? "" : "primary") : null,
@@ -370,7 +423,7 @@ export function createAlertWorkspace({
                       el("strong", "", `实际：${format(c.field, c.actual)}`),
                     ]),
                   ),
-                  el("p", "em-muted", `所有条件同时满足 · ${SAMPLE_TIME}`),
+                  el("p", "em-muted", `所有条件同时满足 · ${row.at}`),
                 ])
               : null,
             rule.kind === "volume" ? el("section", "rd-detail-section", [
@@ -405,7 +458,7 @@ export function createAlertWorkspace({
               el(
                 "p",
                 "em-muted",
-                `通知方式：${rule.channels.map((c) => (c === "site" ? "站内提醒" : "企业微信")).join("、")}`,
+                `提醒去向：${rule.channels.map((c) => (c === "site" ? "规则报告" : "企业微信")).join("、")}`,
               ),
               rule.id ? tag("已关联告警规则", "muted") : null,
             ]),
@@ -413,6 +466,106 @@ export function createAlertWorkspace({
           [],
           close,
         );
+      }
+      function notificationTitle(row) {
+        return reminderTypeText(row.rule) + "提醒：" + row.material.name;
+      }
+      function notificationSummary(row) {
+        return row.values.map(value => (metrics[value.field]?.[0] || value.field) + " " + format(value.field, value.actual)).join("，");
+      }
+      function siteNotificationPreview(row) {
+        return el("div", "rd-site-notification", [
+          el("aside", "rd-site-notification-list", [
+            el("header", "rd-notification-panel-head", [
+              el("div", "", [el("h3", "", "通知中心"), el("p", "em-muted", notificationEvents.value.length + " 条告警通知示例")]),
+              tag("全部已同步", "good"),
+            ]),
+            el("div", "rd-notification-list-tabs", [
+              el("button", notificationFilter.value === "all" ? "active" : "", "全部通知", { type: "button", onClick: () => notificationFilter.value = "all" }),
+              el("button", notificationFilter.value === "unread" ? "active" : "", `未读（${notificationEvents.value.filter(notificationIsUnread).length}）`, { type: "button", onClick: () => notificationFilter.value = "unread" }),
+            ]),
+            el("div", "rd-notification-items", visibleNotificationEvents.value.length ? visibleNotificationEvents.value.map(event =>
+              el("div", "rd-notification-item " + (event.key === row.key ? "active" : ""), [
+                el("span", "rd-notification-signal " + (event.rule.kind || "risk"), "", { "aria-hidden": "true" }),
+                el("span", "rd-notification-copy", [
+                  el("span", "rd-notification-item-head", [el("strong", "", notificationTitle(event)), notificationIsUnread(event) ? el("button", "rd-unread-dot", "", { type: "button", "aria-label": "标为已读", title: "标为已读", onClick: pointerEvent => markNotificationRead(event, pointerEvent) }) : null]),
+                  el("small", "", event.material.account + " · " + event.rule.name),
+                  el("small", "", event.at),
+                ]),
+              ], { role: "button", tabindex: "0", onClick: () => selectNotification(event), onKeydown: keyEvent => { if (keyEvent.key === "Enter" || keyEvent.key === " ") { keyEvent.preventDefault(); selectNotification(event); } } }),
+            ) : el("div", "rd-notification-empty", [el("strong", "", "暂无未读通知"), el("span", "", "新的告警通知会显示在这里。")])) ,
+          ]),
+          el("article", "rd-site-notification-detail", [
+            el("header", "rd-site-detail-head", [
+              el("div", "", [el("span", "rd-type-badge " + (row.rule.kind || "risk"), reminderTypeText(row.rule)), el("span", "em-muted", row.at)]),
+              tag(eventStatus(row).label, eventStatus(row).tone),
+            ]),
+            el("h2", "", notificationTitle(row)),
+            el("p", "rd-site-lead", "素材命中“" + row.rule.name + "”，建议结合素材表现确认是否需要调整投放。规则会继续监控；“已处理”只关闭本次事件。"),
+            el("dl", "rd-notification-facts", [
+              el("dt", "", "媒介平台"), el("dd", "", platforms[row.material.platform] || row.material.platform),
+              el("dt", "", "广告主账户"), el("dd", "", row.material.account),
+              el("dt", "", "素材"), el("dd", "", row.material.name + "（" + row.material.id + "）"),
+              el("dt", "", "实际表现"), el("dd", "rd-notification-value", notificationSummary(row)),
+              escalatedForViewer(row) ? [el("dt", "", "管理状态"), el("dd", "", "已反馈至你的上级管理员")] : null,
+            ]),
+            el("section", "rd-notification-condition", [
+              el("h3", "", "触发条件"),
+              ...row.values.map(value => el("div", "rd-notification-condition-row", [el("span", "", conditionText(value)), el("strong", "", "实际 " + format(value.field, value.actual))])),
+            ]),
+            el("footer", "rd-notification-actions", [
+              button("查看素材表现", () => openMaterial(row.material), "primary"),
+              row.rule.id && !demo.value ? button(handled(row) ? "重新打开" : "标记已处理", () => toggleHandled(row)) : null,
+              button("查看完整告警详情", () => { closeNotificationPreview(); open(row); }, "text"),
+            ]),
+          ]),
+        ]);
+      }
+      function wecomNotificationPreview(row) {
+        return el("div", "rd-wecom-notification", [
+          el("section", "rd-wecom-stage", [
+            el("div", "rd-wecom-phone", [
+              el("header", "rd-wecom-phone-head", [el("span", "rd-wecom-back", "", { "aria-hidden": "true" }), el("strong", "", "企业微信"), el("span", "rd-wecom-more", "", { "aria-hidden": "true" })]),
+              el("div", "rd-wecom-chat", [
+                el("time", "", "13:05"),
+                el("article", "rd-wecom-card", [
+                  el("header", "rd-wecom-card-brand", [el("span", "rd-wecom-brand-mark", "智"), el("div", "", [el("strong", "", "创作平台投放告警"), el("small", "", "告警规则通知")])]),
+                  el("div", "rd-wecom-card-body", [
+                    el("span", "rd-type-badge " + (row.rule.kind || "risk"), reminderTypeText(row.rule)),
+                    el("h3", "", row.material.name),
+                    el("p", "", "命中规则：" + row.rule.name),
+                    el("dl", "rd-wecom-facts", [
+                      el("dt", "", "广告主"), el("dd", "", row.material.account),
+                      el("dt", "", "实际表现"), el("dd", "strong", notificationSummary(row)),
+                      el("dt", "", "触发时间"), el("dd", "", row.at),
+                    ]),
+                    el("p", "rd-wecom-advice", "建议进入素材表现查看趋势，再决定是否调整投放。"),
+                  ]),
+                  el("footer", "rd-wecom-card-foot", [el("span", "", "查看素材表现"), el("i", "", "", { "aria-hidden": "true" })], { role: "button", tabindex: "0", onClick: () => openMaterial(row.material), onKeydown: event => { if (event.key === "Enter" || event.key === " ") openMaterial(row.material); } }),
+                ]),
+              ]),
+            ]),
+          ]),
+          el("aside", "rd-wecom-structure", [
+            el("h3", "", "企业微信通知内容"),
+            el("p", "em-muted", "消息端只保留识别告警和进入处理所需的信息，完整证据仍在站内详情。"),
+            el("div", "rd-wecom-structure-list", [
+              el("div", "", [el("strong", "", "1 · 先识别"), el("p", "", "提醒类型、素材名称、命中规则")]),
+              el("div", "", [el("strong", "", "2 · 再判断"), el("p", "", "广告主账户、实际表现、触发时间")]),
+              el("div", "", [el("strong", "", "3 · 去处理"), el("p", "", "单一主操作直达素材表现，避免多层跳转")]),
+            ]),
+          ]),
+        ]);
+      }
+      function notificationPreview() {
+        const row = notificationRow.value;
+        return el("div", "em-overlay rd-notification-overlay", el("section", "em-drawer rd-notification-drawer", [
+          el("header", "em-drawer-head rd-notification-drawer-head", [
+            el("div", "", [el("h2", "", "企业微信通知预览"), el("p", "em-muted", "系统固定消息格式，规则创建者无需配置标题或正文")]),
+            button("关闭", closeNotificationPreview),
+          ]),
+          el("div", "em-drawer-body rd-notification-body", row ? wecomNotificationPreview(row) : empty("暂无可预览通知", "当前范围没有命中告警。")),
+        ], { role: "dialog", "aria-modal": "true", "aria-label": "企业微信通知预览", tabindex: "-1", onKeydown: event => { if (event.key === "Escape") closeNotificationPreview(); } }), { onMousedown: event => { if (event.target === event.currentTarget) closeNotificationPreview(); } });
       }
       function records() {
         return el("section", "rd-panel em-card", [
@@ -429,7 +582,8 @@ export function createAlertWorkspace({
             h("select", { value: handleStatus.value, "aria-label": "处理状态", onChange: event => handleStatus.value = event.target.value }, [
               h("option", { value: "all" }, "处理状态：全部"),
               h("option", { value: "open" }, "待处理"),
-              h("option", { value: "handled" }, "已处理"),
+              h("option", { value: "handled" }, "本次事件已处理"),
+              canEscalateToSuperior.value ? h("option", { value: "escalated" }, "已升级给上级") : null,
             ]),
             el("span", "em-muted", `${filteredEvents.value.length} 条提醒`),
           ]),
@@ -440,7 +594,7 @@ export function createAlertWorkspace({
                 pagedEvents.value.map((e) =>
                     h("tr", { key: e.key }, [
                       el("td", "", [
-                        el("span", `rd-type-badge ${e.rule.kind || "risk"}`, kindLabels[e.rule.kind] || "未分类"),
+                        el("span", `rd-type-badge ${e.rule.kind || "risk"}`, reminderTypeText(e.rule)),
                         el("strong", "rd-rule-link", e.rule.name),
                       ]),
                       el("td", "", [
@@ -460,8 +614,8 @@ export function createAlertWorkspace({
                           .map((v) => format(v.field, v.actual))
                           .join("；"),
                       ),
-                      el("td", "", handled(e) ? tag("已处理", "good") : tag("待处理", "risk")),
-                      el("td", "", SAMPLE_TIME),
+                      el("td", "", el("span", "rd-event-status", tag(eventStatus(e).label, eventStatus(e).tone))),
+                      el("td", "", e.at),
                       el(
                         "td",
                         "",
@@ -555,12 +709,27 @@ export function createAlertWorkspace({
         ]);
       }
       return () =>
-        el("div", "rd-workspace", [
-          el("header", "rd-heading", [
-            el("div", "", [el("h1", "", "投放提醒")]),
-            el("div", "rd-scope-pickers", [platformPicker(), advertiserPicker()]),
+        el("div", "rd-workspace rd-alert-only-workspace", [
+          el("header", "rd-alert-shell", [
+            el("div", "rd-alert-shell-title", [
+              el("strong", "", "投放提醒"),
+              el("small", "", "查看每次规则执行与命中素材"),
+            ]),
+            el("div", "rd-alert-shell-actions", [
+              el("label", "rd-role-view", [
+                el("span", "", "角色视角"),
+                h("select", { "aria-label": "角色视角", value: roleValue.value, onChange: changeRoleView }, [
+                  ["unassigned", "未分配成员"],
+                  ["platform", "平台管理员"],
+                  ["admin1", "一级管理员"],
+                  ["admin2", "二级管理员"],
+                  ["member", "成员"],
+                ].map(([value, label]) => h("option", { value }, label))),
+              ]),
+              button("企业微信通知预览", () => openNotificationPreview(), "rd-notification-preview-button"),
+            ]),
           ]),
-          demo.value
+          demo.value && tab.value === "records"
             ? el("div", "em-notice", [
                 el("strong", "", "示例看板 · 未分配身份"),
                 el(
@@ -568,33 +737,10 @@ export function createAlertWorkspace({
                   "",
                   "以下内容是只读示例，不代表当前身份拥有素材数据权限。",
                 ),
-                button(
-                  "体验一级管理员",
-                  () => setPreviewActor("admin1"),
-                  "text",
-                ),
               ])
             : null,
-          el(
-            "nav",
-            "rd-tabs",
-            [
-              ["records", "提醒动态"],
-              ["rules", "规则报告"],
-            ].map(([key, label]) =>
-              button(
-                label,
-                () => setTab(key),
-                tab.value === key ? "active" : "",
-                { "aria-current": tab.value === key ? "page" : undefined },
-              ),
-            ),
-            { "aria-label": "投放提醒视图" },
-          ),
-          tab.value === "records"
-            ? records()
-            : h(RuleManager, { mode: "report" }),
-          selected.value ? details() : null,
+          h(RuleManager, { mode: "report" }),
+          notificationChannel.value ? notificationPreview() : null,
           notice.value
             ? el("p", "em-notice", notice.value, { role: "status" })
             : null,

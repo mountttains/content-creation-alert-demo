@@ -1,8 +1,8 @@
 import { C as h, r as ref, h as computed, z as onMounted, ad as onUnmounted, ac as watch, V as useRouter, Y as useRoute } from '../commercial-platform/runtime/assets-blue3/index-oddxqlpg.js';
-import { readState, writeState, watchState, access, actorProfile, effectiveFeatures, scope, grantableScope, managedPeople, people, platforms, platformObjects, features, roles, sampleAdvertisers } from './employee-state.mjs?v=dataset4';
-import { createEmployeeBusiness } from './employee-business.mjs?v=3';
-import { createUI } from './employee-ui.mjs';
-import RuleManager from './rule-manager.mjs?v=rules34';
+import { readState, writeState, watchState, access, actorProfile, effectiveFeatures, scope, grantableScope, managedPeople, people, platforms, platformObjects, features, roles, sampleAdvertisers } from './employee-state.mjs?v=dataset5';
+import { createEmployeeBusiness } from './employee-business.mjs?v=4';
+import { createUI } from './employee-ui.mjs?v=rules19';
+import RuleManager from './rule-manager.mjs?v=rules53';
 
 const { el, button, input, select, check, field, empty, table, tag, drawer } = createUI(h);
 const Business = createEmployeeBusiness({ h, ref, computed, onMounted, onUnmounted, useRouter, useRoute });
@@ -15,7 +15,7 @@ export default {
   name: 'EmployeeMediaWorkspace',
   setup() {
     const router = useRouter(), route = useRoute(), state = ref(readState());
-    const tab = ref(['grants', 'rules'].includes(route.query.tab) ? route.query.tab : 'platforms');
+    const tab = ref('rules');
     const platform = ref(['qianchuan', 'local'].includes(route.query.platform) ? route.query.platform : 'ocean_engine');
     const selectedConnection = ref(''), search = ref(''), collection = ref(''), principal = ref(''), selected = ref([]), message = ref(''), error = ref(''), panel = ref(null), accountPage = ref(1), accountPageSize = ref(10);
     const roleFilter = ref(''), assignmentSource = ref(''), assignmentPlatform = ref(''), assignmentState = ref('');
@@ -35,7 +35,7 @@ export default {
     onMounted(() => { stop = watchState(next => { state.value = next; panel.value = null; selected.value = []; }); });
     onUnmounted(() => stop?.());
     watch(() => [route.query.tab, route.query.platform], ([nextTab, nextPlatform]) => {
-      tab.value = ['grants', 'rules'].includes(nextTab) ? nextTab : 'platforms';
+      tab.value = 'rules';
       platform.value = ['qianchuan', 'local'].includes(nextPlatform) ? nextPlatform : 'ocean_engine';
       selected.value = []; selectedConnection.value = ''; search.value = ''; collection.value = ''; principal.value = '';
       roleFilter.value = ''; assignmentSource.value = ''; assignmentPlatform.value = ''; assignmentState.value = '';
@@ -231,12 +231,12 @@ export default {
     return () => el('div', 'employee-media-page', [
       el('div', 'em-layout', [
         el('header', 'em-topbar', [el('div', '', [el('strong', '', '媒介管理'), el('small', 'em-sub', '授权连接、业务账户数据范围与人员权限')]), el('div', 'em-grow'), h(Business, { compact: true })]),
-        el('aside', 'em-sidebar', [el('strong', '', actor.value.role === 'platform' ? '后台管理' : '用户中心'), button('返回投放数据', () => router.push({ path: '/ad-data', query: { view: 'performance', ...(platform.value !== 'ocean_engine' ? { platform: platform.value } : {}) } })), button('媒介管理', () => {}, 'selected')]),
+        el('aside', 'em-sidebar', [el('strong', '', actor.value.role === 'platform' ? '后台管理' : '用户中心'), button('媒介管理', () => {}, 'selected')]),
         el('main', 'em-main', [
           el('header', 'em-page-title', [el('h1', '', '媒介管理'), tag('交互预览 · 本地示例', 'muted')]),
-          el('nav', 'em-tabs', [button('媒介授权', () => navigate('platforms'), tab.value === 'platforms' ? 'active' : '', { 'aria-current': tab.value === 'platforms' ? 'page' : undefined }), button(actor.value.role === 'member' ? '我的媒介权限' : '媒介赋权', () => navigate('grants'), tab.value === 'grants' ? 'active' : '', { 'aria-current': tab.value === 'grants' ? 'page' : undefined }), button('告警规则', () => navigate('rules'), tab.value === 'rules' ? 'active' : '', { 'aria-current': tab.value === 'rules' ? 'page' : undefined }), el('div', 'em-grow'), tab.value === 'grants' && current.value.canGrant ? button('新增赋权', () => editGrant(), 'primary') : null], { 'aria-label': '媒介管理功能' }),
+          el('nav', 'em-tabs', [button('媒介授权', () => {}, 'em-tab-disabled', { disabled: true, title: '当前预览仅开放告警相关页面' }), button(actor.value.role === 'member' ? '我的媒介权限' : '媒介赋权', () => {}, 'em-tab-disabled', { disabled: true, title: '当前预览仅开放告警相关页面' }), button('告警配置', () => {}, 'active', { 'aria-current': 'page' }), el('div', 'em-grow')], { 'aria-label': '媒介管理功能' }),
           message.value ? el('div', 'em-notice', message.value, { role: 'status' }) : null,
-          ...(tab.value === 'platforms' ? authorization() : tab.value === 'grants' ? [assignments()] : [h(RuleManager, { mode: 'manage' })]),
+          h(RuleManager, { mode: 'manage' }),
         ]),
       ], { inert: panel.value ? '' : null }), panelView(),
     ]);

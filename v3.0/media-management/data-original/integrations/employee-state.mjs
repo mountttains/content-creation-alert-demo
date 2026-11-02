@@ -23,13 +23,21 @@ const accountNames = {
 };
 const accountPrefixes = { ocean_engine: 'AD', qianchuan: 'QC', local: 'LOCAL' };
 const accountCounts = { ocean_engine: 40, qianchuan: 35, local: 25 };
+const companyNames = {
+  ocean_engine: ['星河科技（示例）', '远山消费（示例）', '云帆教育（示例）', '青禾生活（示例）'],
+  qianchuan: ['星河电商（示例）', '远山服饰（示例）', '云帆家居（示例）', '青禾食品（示例）'],
+  local: ['星河到店（示例）', '远山餐饮（示例）', '云帆服务（示例）', '青禾零售（示例）'],
+};
 const catalog = Object.keys(platforms).flatMap(platform => Array.from({ length: accountCounts[platform] }, (_, index) => {
   const n = index + 1;
+  const companyIndex = index % companyNames[platform].length;
   return {
     id: `${platform}:demo-${n}`,
     advertiser_id: `${accountPrefixes[platform]}-${String(n).padStart(6, '0')}`,
     name: accountNames[platform](n),
     platform,
+    company_id: `${platform}:company-${companyIndex + 1}`,
+    company_name: companyNames[platform][companyIndex],
     source: `source-${platform}`,
     principal_id: `principal-${platform}`,
     principal_name: `${platforms[platform]}授权主体`,
@@ -38,6 +46,16 @@ const catalog = Object.keys(platforms).flatMap(platform => Array.from({ length: 
   };
 }));
 export const sampleAdvertisers = () => structuredClone(catalog);
+function normalizeState(state) {
+  const accountById = new Map(catalog.map(account => [account.id, account]));
+  return {
+    ...state,
+    connections: state.connections.map(connection => ({
+      ...connection,
+      advertisers: connection.advertisers.map(account => ({ ...accountById.get(account.id), ...account })),
+    })),
+  };
+}
 function seed() {
   return { actor: 'new-user', connections: Object.keys(platforms).map(platform => ({
     id: `source-${platform}`, platform, owner: 'preview-admin1', name: `${platforms[platform]}示例连接`, active: true,
@@ -48,7 +66,7 @@ function seed() {
   ] };
 }
 export function readState() {
-  try { const s = JSON.parse(localStorage.getItem(STATE_KEY)); if (s?.connections && s?.grants && s?.actor) return s; } catch {}
+  try { const s = JSON.parse(localStorage.getItem(STATE_KEY)); if (s?.connections && s?.grants && s?.actor) return normalizeState(s); } catch {}
   return seed();
 }
 export function writeState(next) {

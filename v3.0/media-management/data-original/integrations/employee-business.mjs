@@ -1,4 +1,4 @@
-import { access, actorProfile, effectiveFeatures, features, readState, setPreviewActor, watchState } from './employee-state.mjs?v=dataset4';
+import { access, actorProfile, effectiveFeatures, features, readState, setPreviewActor, watchState } from './employee-state.mjs?v=dataset5';
 
 export function createEmployeeBusiness({ h, ref, computed, onMounted, onUnmounted, useRouter, useRoute }) {
   const el = (tag, cls, children, props = {}) => h(tag, { class: cls, ...props }, children && typeof children === 'object' && !Array.isArray(children) ? [children] : children);
@@ -22,7 +22,7 @@ export function createEmployeeBusiness({ h, ref, computed, onMounted, onUnmounte
         ].map(([value, label]) => h('option', { value }, label))),
       ]);
       return () => {
-        if (props.compact) return el('div', 'employee-header-actions', [controls(), route.path !== '/media-management' ? button('媒介管理', () => media()) : null]);
+        if (props.compact) return el('div', 'employee-header-actions', [controls()]);
         const value = current.value;
         const copy = {
           feature: ['真实投放数据尚未开通', '请联系上级管理员开通功能并分配广告主，完成后刷新权限。'],

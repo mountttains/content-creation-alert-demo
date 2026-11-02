@@ -11,9 +11,9 @@ export function createUI(h) {
     h('tbody', null, rows.length ? rows : [h('tr', null, [h('td', { colspan: headers.length }, [empty('暂无记录', '当前范围内没有匹配的数据。')])])]),
   ]));
   const tag = (text, cls = '') => el('span', `employee-tag ${cls}`, text);
-  const drawer = (title, body, actions, close) => {
+  const drawer = (title, body, actions, close, options = {}) => {
     let previous;
-    return el('div', 'em-overlay', el('section', 'em-drawer', [
+    return el('div', options.overlayClass || 'em-overlay', el('section', options.drawerClass || 'em-drawer', [
       el('header', 'em-drawer-head', [el('h2', '', title), button('关闭', close)]),
       el('div', 'em-drawer-body', body), actions?.length ? el('footer', 'em-drawer-foot', actions) : null,
     ], { role: 'dialog', 'aria-modal': 'true', 'aria-label': title, tabindex: '-1',
